@@ -37,11 +37,14 @@ def add_password():
             print("...file not found, creating new file...")
             with open('data.json', 'w') as f:
                 json.dump(save_dict, f, indent=4)
-                print("Account data and password saved. File created.")
+                #print("Account data and password saved. File created.")
+                messagebox.showinfo("Success", "Account data and password saved.\nFile Created")
         else:
             with open('data.json', 'w') as f:
-                print("Account data and password saved. File updated.")
                 json.dump(data, f, indent=4)
+                #print("Account data and password saved. File updated.")
+                messagebox.showinfo("Success", f"Account data and password saved.")
+
         finally:
             website_entry.delete(0, tk.END)
             password_entry.delete(0, tk.END)
@@ -88,29 +91,29 @@ canvas.grid(row=0, column=1)
 website_label = tk.Label(window, text="Website:", bg="white", highlightthickness=0)
 website_label.grid(row=1, column=0)
 
-website_entry = tk.Entry(window, width=59, highlightthickness=0)
+website_entry = tk.Entry(window, width=41, highlightthickness=0)
 website_entry.grid(row=1, column=1, sticky=tk.W)
 
-search_button = tk.Button(text="Search", width=21, command=search_data)
-search_button.grid(row=1, column=2, columnspan=1)
+search_button = tk.Button(text="Search", width=17, command=search_data)
+search_button.grid(row=1, column=2, sticky='w')
 
 email_label = tk.Label(window, text="Email/Username:", bg="white", highlightthickness=0)
 email_label.grid(row=2, column=0)
 
-email_entry = tk.Entry(window, width=85, highlightthickness=0)
+email_entry = tk.Entry(window, width=61, highlightthickness=0)
 email_entry.insert(0, "nanodoc2020@gmail.com")
 email_entry.grid(row=2, column=1, columnspan=2, sticky=tk.W)
 
 password_label = tk.Label(window, text="Password:", bg="white", highlightthickness=0)
 password_label.grid(row=3, column=0)
 
-password_entry = tk.Entry(window, width=59, highlightthickness=0)
+password_entry = tk.Entry(window, width=41, highlightthickness=0)
 password_entry.grid(row=3, column=1, sticky=tk.W)
 
-generate_button = tk.Button(text="Generate Password", width=21, command=generate_password)
+generate_button = tk.Button(text="Generate Password", width=17, command=generate_password)
 generate_button.grid(row=3, column=2, sticky="w")
 
-add_button = tk.Button(text="Add", width=49, command=add_password)
+add_button = tk.Button(text="Add", width=53, command=add_password)
 add_button.grid(row=4, column=1, columnspan=2, sticky="w", pady=10)
 
 window.mainloop()
