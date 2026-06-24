@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 import random as rnd
-import string
+import string, json
 
 ascii_list = string.ascii_letters + string.digits + string.punctuation
 
@@ -14,27 +14,64 @@ def generate_password():
     return password
 # ---------------------------- SAVE PASSWORD ------------------------------- #
 def add_password():
+    website = website_entry.get()
     save_dict = {
-        "website": website_entry.get(),
-        "email": email_entry.get(),
-        "password":password_entry.get(),
+        website: {
+            "email": email_entry.get(),
+            "password": password_entry.get(),
+        }
     }
 
-    is_ok = messagebox.askokcancel(title=save_dict["website"],
-                                   message=f"\nEmail: {save_dict["email"]}\nPassword: {save_dict["password"]}\nOkay to save?")
+    # is_ok = messagebox.askokcancel(title=save_dict["website"],
+    #                                message=f"\nEmail: {save_dict["email"]}\nPassword: {save_dict["password"]}\nOkay to save?")
 
-    if save_dict["website"] == "" or save_dict["email"] == "" or save_dict["password"] == "":
+    if website == "" or save_dict[website]["email"] == "" or save_dict[website]["password"] == "":
         messagebox.showerror("Error", "Please enter all required fields")
-        is_ok = False
+    #    is_ok = False
+    else:
+        try:
+            with open('data.json', 'r') as f:
+                data = json.load(f)
+                data.update(save_dict)
+        except FileNotFoundError:
+            print("...file not found, creating new file...")
+            with open('data.json', 'w') as f:
+                json.dump(save_dict, f, indent=4)
+                print("Account data and password saved. File created.")
+        else:
+            with open('data.json', 'w') as f:
+                print("Account data and password saved. File updated.")
+                json.dump(data, f, indent=4)
+        finally:
+            website_entry.delete(0, tk.END)
+            password_entry.delete(0, tk.END)
 
-    if is_ok:
-        with open("data.txt",  'a') as f:
-            f.write(save_dict["website"] + ", " + save_dict["email"] + ", " + save_dict["password"] + "\n")
-            f.close()
-        print("Account data and password saved.")
+    # if is_ok:
+    #     with open("data.txt",  'a') as f:
+    #         f.write(save_dict["website"] + ", " + save_dict["email"] + ", " + save_dict["password"] + "\n")
+    #         f.close()
+    #     print("Account data and password saved.")
 
-    website_entry.delete(0, tk.END)
-    password_entry.delete(0, tk.END)
+# ----------------------------SEARCH FUNCTION---------------------------- #
+def search_data():
+    website = website_entry.get()
+    if website == "":
+        messagebox.showerror("Error", "Search cannot be empty.")
+        return
+    try:
+        with open('data.json', 'r') as f:
+            data = json.load(f)
+            print(data[website])
+    except KeyError as key_error:
+        messagebox.showerror("Error", f"{key_error} not found in data.json")
+    except FileNotFoundError as error:
+        messagebox.showerror("Error", f"{error} not found.")
+    else:
+        email = data[website]["email"]
+        password = data[website]["password"]
+        messagebox.showinfo("Success", f"Email: {email}\nPassword: {password}")
+
+
 # ---------------------------- UI SETUP ------------------------------- #
 
 window = tk.Tk()
@@ -52,19 +89,22 @@ website_label = tk.Label(window, text="Website:", bg="white", highlightthickness
 website_label.grid(row=1, column=0)
 
 website_entry = tk.Entry(window, width=59, highlightthickness=0)
-website_entry.grid(row=1, column=1, columnspan=2, sticky=tk.W)
+website_entry.grid(row=1, column=1, sticky=tk.W)
+
+search_button = tk.Button(text="Search", width=21, command=search_data)
+search_button.grid(row=1, column=2, columnspan=1)
 
 email_label = tk.Label(window, text="Email/Username:", bg="white", highlightthickness=0)
 email_label.grid(row=2, column=0)
 
-email_entry = tk.Entry(window, width=59, highlightthickness=0)
+email_entry = tk.Entry(window, width=85, highlightthickness=0)
 email_entry.insert(0, "nanodoc2020@gmail.com")
 email_entry.grid(row=2, column=1, columnspan=2, sticky=tk.W)
 
 password_label = tk.Label(window, text="Password:", bg="white", highlightthickness=0)
 password_label.grid(row=3, column=0)
 
-password_entry = tk.Entry(window, width=32, highlightthickness=0)
+password_entry = tk.Entry(window, width=59, highlightthickness=0)
 password_entry.grid(row=3, column=1, sticky=tk.W)
 
 generate_button = tk.Button(text="Generate Password", width=21, command=generate_password)
